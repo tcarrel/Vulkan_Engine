@@ -21,20 +21,23 @@ OS_VERS := $(shell g++ -dumpmachine)
 
 AUTHOR := Thomas R. Carrel
 
-SDL2_CFLAGS := $(shell sdl2-config --cflags)
+#SDL2_CFLAGS := $(shell sdl2-config --cflags)
+
+GCCERREXT = gccerr
 
 #  This executable name was chose because it was short... a more appropriate one
 # should be chosen later.
 MAIN = gg
 
 ERROR_DIR = ./Errors
+ENTRY_POINT_DIR = entry_point
 
 DOXY_OUTPUT_DIR = $(ERROR_DIR)/Doxygen
 
-OBJ_FILES = 
+OBJ_FILES = .entry_point.o
 
-COPYOUTPUT = 2>&1 | tee $(ERROR_DIR)/$<.$(GCCERREXT)
-COPYDOXYOUTPUT = 2>&1 | tee $(DOXY_OUTPUT_DIR)/$<.doxy.out
+COPYOUTPUT = 2>&1 | tee $(ERROR_DIR)/_$@.$(GCCERREXT)
+COPYDOXYOUTPUT = 2>&1 | tee $(ERROR_DIR)/$@.doxy.out
 
 #LIBS = -
 
@@ -60,12 +63,12 @@ CXXFLAGS = $(SDL2_CFLAGS) -time -Wall -g -std=c++11 -D TIMED -D DEBUG \
 
 # link
 $(MAIN): $(OBJ_FILES) $(ERROR_DIR) Makefile
-	$(CXX) $(CXXFLAGS) $(OBJ_FILES) $(ALL_LIBS) -o $(MAIN) \
-		2>&1 | tee $(ERROR_DIR)/$(MAIN).$(GCCERREXT)
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) -o $@ \
+		2>&1 | tee $(ERROR_DIR)/$@.$(GCCERREXT)
 
 
-
-
+.entry_point.o: $(ENTRY_POINT_DIR)/entry_point.cpp $(ERROR_DIR)
+	$(TIME) $(CXX) $(CXXFLAGS) -c $< -o $@ $(COPYOUTPUT)
 
 
 $(ERROR_DIR):
